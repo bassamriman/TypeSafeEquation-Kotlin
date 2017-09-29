@@ -4,24 +4,10 @@ data class Ratio<NumeratorUnit : UnitLike<NumeratorUnit>, DenominatorUnit : Unit
         val n : ()->N,
         val d : ()->N,
         val nUnit : ()->NumeratorUnit,
-        val dUnit : ()->DenominatorUnit)
-    : Operation<NumeratorUnit, DenominatorUnit, Div<NumeratorUnit, DenominatorUnit>, N>(
-        n,
-        d,
-        nUnit,
-        dUnit,
-        {n1 : N, n2 : N -> n1 / n2},
-        {u1 : NumeratorUnit, u2 : DenominatorUnit -> u1 / u2}){
+        val dUnit : ()->DenominatorUnit) :
+        Amount<Div<NumeratorUnit, DenominatorUnit>, N>({-> n.invoke()/ d.invoke()},{->nUnit.invoke()/dUnit.invoke()})
 
-    //operator fun <ONU : UnitLike<ONU>, ODU : UnitLike<ODU>> times(other : Ratio<ONU,ODU,N>) :
-}
-
-inline fun <N: Number<N>> numericalOperation(o1 : ()->N, o2 : ()->N, numberOperation : (N, N)->N)= numberOperation(o1.invoke(), o2.invoke())
-inline fun <O1Unit : UnitLike<O1Unit>,
-        O2Unit : UnitLike<O2Unit>,
-        ResultUnit : Unit<ResultUnit>>
-        unitOperation( o1 : ()->O1Unit, o2 : ()->O2Unit, unitOperation : (O1Unit,O2Unit)-> ResultUnit) = unitOperation(o1.invoke(), o2.invoke())
-
+/*
 interface RatioYieldingOperation<NumeratorUnit : Unit<NumeratorUnit>, DenominatorUnit : Unit<DenominatorUnit>, N: Number<N>> : Equatable<Div<NumeratorUnit,DenominatorUnit>,N>{
     operator fun times(other : RatioYieldingOperation<DenominatorUnit, NumeratorUnit,N>) : RatioMultiplicationWithFullCancellation<NumeratorUnit,DenominatorUnit,N> =
             RatioMultiplicationWithFullCancellation(this::quantity,other::quantity,this::unit,other::unit)
@@ -30,19 +16,13 @@ interface RatioYieldingOperation<NumeratorUnit : Unit<NumeratorUnit>, Denominato
     infix fun <ODU : Unit<ODU>> Xinc(other : RatioYieldingOperation<DenominatorUnit,ODU,N>) : RatioMultiplicationWithInclineCancelation<DenominatorUnit,NumeratorUnit,ODU,N> =
             RatioMultiplicationWithInclineCancelation(this::quantity,other::quantity,this::unit,other::unit)
 }
-
+*/
 data class UnitfulRatio<NumeratorUnit : Unit<NumeratorUnit>, DenominatorUnit : Unit<DenominatorUnit>, N: Number<N>> (
         val n : ()->N,
         val d : ()->N,
         val nUnit : ()->NumeratorUnit,
         val dUnit : ()->DenominatorUnit)
-    : Operation<NumeratorUnit, DenominatorUnit, Div<NumeratorUnit, DenominatorUnit>, N>(
-        n,
-        d,
-        nUnit,
-        dUnit,
-        {n1 : N, n2 : N -> n1 / n2},
-        {u1 : NumeratorUnit, u2 : DenominatorUnit -> u1 / u2}), RatioYieldingOperation<NumeratorUnit,DenominatorUnit,N>{
+    : UnitfulAmount<Div<NumeratorUnit, DenominatorUnit>, N>({-> n.invoke()/ d.invoke()},{->nUnit.invoke()/dUnit.invoke()}){
     companion object {
         inline fun <NumeratorUnit : Unit<NumeratorUnit>, DenominatorUnit : Unit<DenominatorUnit>, N: Number<N>> of(
                 n : ()->N,
@@ -52,54 +32,30 @@ data class UnitfulRatio<NumeratorUnit : Unit<NumeratorUnit>, DenominatorUnit : U
     }
 }
 
-data class NoUnitYieldingSameUnitRatio<Unit : UnitLike<Unit>, N: Number<N>> (
+data class SameUnitRatio<Unit : UnitLike<Unit>, N: Number<N>> (
         val n : ()->N,
         val d : ()->N,
         val sameUnit : ()-> Unit)
-    : NoUnitYieldingOperation<Unit, Unit, N>(
-        n,
-        d,
-        sameUnit,
-        sameUnit,
-        {n1 : N, n2 : N -> n1 / n2},
-        {u1 : Unit, u2 : Unit -> u1 / u2})
+    : UnitlessAmount<N>({-> n.invoke()/ d.invoke()},{->NoUnit})
 
-data class NoUnitYieldingNoUnitRatio<N: Number<N>> (
+data class NoUnitRatio<N: Number<N>> (
         val n : ()->N,
         val d : ()->N)
-    : NoUnitYieldingOperation<NoUnit, NoUnit, N>(
-        n,
-        d,
-        {->NoUnit},
-        {->NoUnit},
-        {n1 : N, n2 : N -> n1 / n2},
-        {u1 : NoUnit, u2 : NoUnit -> u1 / u2})
+    : UnitlessAmount<N>({-> n.invoke()/ d.invoke()},{->NoUnit})
 
-data class Multiplication<Operand1Unit : Unit<Operand1Unit>, Operand2Unit : Unit<Operand2Unit>, N: Number<N>> (
+/*data class Multiplication<Operand1Unit : Unit<Operand1Unit>, Operand2Unit : Unit<Operand2Unit>, N: Number<N>> (
         val o1 : ()->N,
         val o2 : ()->N,
         val o1Unit : ()->Operand1Unit,
         val o2Unit : ()->Operand2Unit)
-    : Operation<Operand1Unit, Operand2Unit, Times<Operand1Unit, Operand2Unit>, N>(
-        o1,
-        o2,
-        o1Unit,
-        o2Unit,
-        {n1 : N, n2 : N -> n1 * n2},
-        {u1 : Operand1Unit, u2 : Operand2Unit -> u1 * u2})
-
+    : UnitfulAmount<Times<Operand1Unit, Operand2Unit>, N>({-> o1.invoke()*o2.invoke()},{->o1Unit.invoke()*o2Unit.invoke()})
+/*
 data class RatioMultiplicationWithFullCancellation<UnitToCancel1 : Unit<UnitToCancel1>, UnitToCancel2 : Unit<UnitToCancel2>, N: Number<N>> (
         val o1 : ()->N,
         val o2 : ()->N,
         val o1Unit : ()->Div<UnitToCancel1,UnitToCancel2>,
         val o2Unit : ()->Div<UnitToCancel2,UnitToCancel1>)
-    : NoUnitYieldingOperation<Div<UnitToCancel1,UnitToCancel2>, Div<UnitToCancel2,UnitToCancel1>, N>(
-        o1,
-        o2,
-        o1Unit,
-        o2Unit,
-        {n1 : N, n2 : N -> n1 * n2},
-        {u1 : Div<UnitToCancel1,UnitToCancel2>, u2 : Div<UnitToCancel2,UnitToCancel1> -> u1 * u2})
+    : UnitlessAmount<N>({-> o1.invoke()/ o2.invoke()},{->NoUnit})
 
 data class RatioMultiplicationWithDecliningCancelation
         <UnitToCancel : Unit<UnitToCancel>,
@@ -234,3 +190,4 @@ data class Subtraction<U : Unit<U>, N: Number<N>> (
         {n1 : N, n2 : N -> n1 - n2},
         {u1 : U, u2 : U -> u1 - u2})
 
+*/

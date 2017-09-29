@@ -6,7 +6,6 @@ interface SelfMultiplicativeOperable<Self : SelfMultiplicativeOperable<Self>> : 
 interface SelfAdditionOperable<Self : SelfAdditionOperable<Self>> : SelfToOtherAdditionOperable<Self, Self>
 interface SelfSubtractableOperable<Self : SelfSubtractableOperable<Self>> : SelfToOtherSubtractableOperable<Self, Self>
 
-
 interface SelfToOtherArithmeticOperable<Self : SelfToOtherArithmeticOperable<Self, Result>, out Result> :
         SelfToOtherDividableOperable<Self, Result>,
         SelfToOtherMultiplicativeOperable<Self, Result>,
