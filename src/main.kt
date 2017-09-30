@@ -9,8 +9,8 @@ object Second : Unit<Second>
 object Newton : Unit<Newton>
 object Km : Unit<Km>
 fun main(args : Array<String>){
-    //val calculation1 = ((2.0.d * Km) / (2.0.d * Second)) Xdec ((2.0.d * Newton) / (2.0.d * Km))
-    //val calculation2 = ((2.0.d * Second) / (2.0.d * Km)) Xinc ((2.0.d * Km) / (2.0.d * Newton))
+    //val calculation1 = ((2.0.d * Km) / (2.0.denominator * Second)) Xdec ((2.0.denominator * Newton) / (2.0.denominator * Km))
+    //val calculation2 = ((2.0.d * Second) / (2.0.denominator * Km)) Xinc ((2.0.denominator * Km) / (2.0.denominator * Newton))
     //val calculation3 = calculation1 * calculation2
     //val result = calculation3.quantity()
     //val unit = calculation3.unit()

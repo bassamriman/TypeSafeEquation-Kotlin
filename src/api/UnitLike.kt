@@ -7,7 +7,7 @@ interface UnitLike<Self : UnitLike<Self>> {
     operator fun times(other: NoUnit): Self = this as Self
 
     operator fun <TOther : UnitLike<TOther>> div(other: TOther): Div<Self,TOther> = UnitOperations.div(this as Self, other)
-    operator fun <TOther : UnitLike<TOther>> times(other: TOther): UnitLike<*>
+    operator fun <TOther : Unit<TOther>> times(other: TOther): UnitLike<*>
     operator fun <TOther : UnitLike<TOther>> plus(other: TOther): Plus<Self,TOther> = UnitOperations.plus(this as Self, other)
     operator fun <TOther : UnitLike<TOther>> minus(other: TOther): Minus<Self,TOther> = UnitOperations.minus(this as Self, other)
 }
@@ -16,11 +16,11 @@ interface Unit<Self : Unit<Self>> : UnitLike<Self>, UnitOnlyEquatable<Self>{
     override fun unit(): Self = this as Self
     operator fun times(other: Self): Power2<Self> = UnitOperations.power2(this as Self)
     operator fun div(other: NoUnit): Self = this as Self
-    override operator fun <TOther : UnitLike<TOther>> times(other: TOther): Times<Self,TOther> = UnitOperations.times(this as Self, other)
+    override operator fun <TOther : Unit<TOther>> times(other: TOther): Times<Self,TOther> = UnitOperations.times(this as Self, other)
 }
 
 object NoUnit : UnitLike<NoUnit> {
-    override operator fun <TOther : UnitLike<TOther>> times(other: TOther): TOther = other
+    override operator fun <TOther : Unit<TOther>> times(other: TOther): TOther = other
 }
 
 //Unit Composition
