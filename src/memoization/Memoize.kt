@@ -1,6 +1,7 @@
 package memoization
 
-import memoization.tuples.*
+import memoization.tuples.Quadruple
+import memoization.tuples.Quintuple
 
 const val DEFAULT_CAPACITY = 1 shl 8
 

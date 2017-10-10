@@ -1,7 +1,5 @@
 package api
 
-import memoization.memoize
-
 /*
 inline fun numericalOperation(o1 : ()->Number<*>, o2 : ()->Number<*>, numberOperation : (Number<*>, Number<*>)->Number<*>) =
         numberOperation.invoke(o1.invoke(),o2.invoke())
@@ -98,7 +96,7 @@ open class UnitlessAmountYeildingOperation<
     override fun unit(): NoUnit = NoUnit
 }
 
-object Arithmetic{
+object Arithmetic {
 
     /**
      *  Represents a number arithmetic operation
@@ -115,7 +113,7 @@ object Arithmetic{
             unitOperation(operand1: () -> Operand1Unit,
                           operand2: () -> Operand2Unit,
                           unitOperation: (Operand1Unit, Operand2Unit) -> ResultUnit) =
-        unitOperation(operand1(), operand2())
+            unitOperation(operand1(), operand2())
 
     /**
      *  Represents an operation that takes two operands and yields a result
@@ -132,8 +130,7 @@ object Arithmetic{
                       crossinline numberOperation: (N, N) -> N,
                       crossinline unitOperation: (Operand1Unit, Operand2Unit) -> ResultUnit,
                       amountCreator: (() -> N, () -> N, () -> Operand1Unit, () -> Operand2Unit, () -> N, () -> ResultUnit) -> ResultAmount)
-            : ResultAmount
-    {
+            : ResultAmount {
         return amountCreator(
                 { -> operand1() },
                 { -> operand2() },
@@ -152,23 +149,22 @@ object Arithmetic{
             ResultAmount : UnitlessAmountOperation<Operand1Unit, Operand2Unit, N>,
             N : Number<N>>
             unitlessOperation(crossinline operand1: () -> N,
-                                            crossinline operand2: () -> N,
-                                            crossinline operand1Unit: () -> Operand1Unit,
-                                            crossinline operand2Unit: () -> Operand2Unit,
-                                            crossinline numberOperation: (N, N) -> N,
-                                            crossinline unitOperation: (Operand1Unit, Operand2Unit) -> NoUnit,
-                                            amountCreator: (() -> N,
-                                                            () -> N,
-                                                            () -> Operand1Unit,
-                                                            () -> Operand2Unit,
-                                                            () -> N,
-                                                            () -> NoUnit) -> ResultAmount)
-            : ResultAmount
-    {
+                              crossinline operand2: () -> N,
+                              crossinline operand1Unit: () -> Operand1Unit,
+                              crossinline operand2Unit: () -> Operand2Unit,
+                              crossinline numberOperation: (N, N) -> N,
+                              crossinline unitOperation: (Operand1Unit, Operand2Unit) -> NoUnit,
+                              amountCreator: (() -> N,
+                                              () -> N,
+                                              () -> Operand1Unit,
+                                              () -> Operand2Unit,
+                                              () -> N,
+                                              () -> NoUnit) -> ResultAmount)
+            : ResultAmount {
         return amountCreator(
                 { -> operand1() },
                 { -> operand2() },
-                { -> operand1Unit()},
+                { -> operand1Unit() },
                 { -> operand2Unit() },
                 { -> numericalOperation(operand1, operand2, numberOperation) },
                 { -> unitOperation(operand1Unit, operand2Unit, unitOperation) })
@@ -191,15 +187,14 @@ object Arithmetic{
                                                             () -> OperandUnit,
                                                             () -> N,
                                                             () -> NoUnit) -> ResultAmount)
-            : ResultAmount
-    {
-            return amountCreator(
-                    { -> operand1() },
-                    { -> operand2() },
-                    { -> operandUnit()},
-                    { -> operandUnit() },
-                    { -> numericalOperation(operand1, operand2, numberOperation) },
-                    { -> unitOperation(operandUnit, operandUnit, unitOperation) })
+            : ResultAmount {
+        return amountCreator(
+                { -> operand1() },
+                { -> operand2() },
+                { -> operandUnit() },
+                { -> operandUnit() },
+                { -> numericalOperation(operand1, operand2, numberOperation) },
+                { -> unitOperation(operandUnit, operandUnit, unitOperation) })
     }
 
     /**
@@ -238,13 +233,41 @@ object Arithmetic{
     /**
      *  Represents an operation that takes two operands
      */
+    inline fun <Operand1Unit : Unit<Operand1Unit>,
+            Operand2Unit : Unit<Operand2Unit>,
+            ResultUnit : Unit<ResultUnit>,
+            Operand1 : UnitOnlyEquatable<Operand1Unit>,
+            Operand2 : EquatableWithUnit<Operand2Unit, N>,
+            Result : AmountOperation<Operand1Unit, Operand2Unit, ResultUnit, N>,
+            reified N : Number<N>> equatableOperation(o1: Operand1,
+                                                      o2: Operand2,
+                                                      operation: (() -> N, () -> N, () -> Operand1Unit, () -> Operand2Unit) -> Result): Result {
+        return operation({ -> o1.unaryAmount(N::class).quantity() }, { -> o2.quantity() }, { -> o1.unit() }, { -> o2.unit() })
+    }
+
+    /**
+     *  Represents an operation that takes two operands
+     */
+    inline fun <OperandUnit : Unit<OperandUnit>,
+            Operand1 : UnitOnlyEquatable<OperandUnit>,
+            Operand2 : EquatableWithUnit<OperandUnit, N>,
+            Result : AmountOperation<OperandUnit, OperandUnit, OperandUnit, N>,
+            reified N : Number<N>> equatableOperation(o1: Operand1,
+                                                      o2: Operand2,
+                                                      operation: (() -> N, () -> N, () -> OperandUnit) -> Result): Result {
+        return operation({ o1.unaryAmount(N::class).quantity() }, { o2.quantity() }, { o1.unit() })
+    }
+
+    /**
+     *  Represents an operation that takes two operands
+     */
     inline fun <OperandUnit : Unit<OperandUnit>,
             Operand1 : UnitOnlyEquatable<OperandUnit>,
             Operand2 : EquatableWithNoUnit<N>,
             Result : AmountOperation<OperandUnit, NoUnit, OperandUnit, N>,
             reified N : Number<N>> equatableOperation(o1: Operand1,
-                                              o2: Operand2,
-                                              operation: (() -> N, () -> N, () -> OperandUnit, () -> NoUnit) -> Result): Result {
+                                                      o2: Operand2,
+                                                      operation: (() -> N, () -> N, () -> OperandUnit, () -> NoUnit) -> Result): Result {
         return operation({ -> o1.unaryAmount(N::class).quantity() }, { -> o2.quantity() }, { -> o1.unit() }, { -> o2.unit() })
     }
 
@@ -258,9 +281,9 @@ object Arithmetic{
             Operand2 : UnitOnlyEquatable<Operand2Unit>,
             Result : AmountOperation<Operand1Unit, Operand2Unit, ResultUnit, N>,
             reified N : Number<N>> equatableOperation(o1: Operand1,
-                                              o2: Operand2,
-                                              operation: (() -> N, () -> N, () -> Operand1Unit, () -> Operand2Unit) -> Result): Result {
-        return operation({ -> o1.quantity() }, { -> o2.unaryAmount(N::class).quantity() }, { -> o1.unit() }, { -> o2.unit() })
+                                                      o2: Operand2,
+                                                      operation: (() -> N, () -> N, () -> Operand1Unit, () -> Operand2Unit) -> Result): Result {
+        return operation({ o1.quantity() }, { o2.unaryAmount(N::class).quantity() }, { o1.unit() }, { o2.unit() })
     }
 
     /**
@@ -272,7 +295,19 @@ object Arithmetic{
             N : Number<N>> equatableOperation(o1: Operand,
                                               o2: Operand,
                                               operation: (() -> N, () -> N, () -> OperandsUnit) -> Result): Result {
-        return operation({ -> o1.quantity() }, { -> o2.quantity() }, { -> o1.unit() })
+        return operation({ o1.quantity() }, { o2.quantity() }, { o1.unit() })
+    }
+
+    /**
+     *  Represents an operation that takes two operands with the same unit and yield same unit
+     */
+    inline fun <OperandsUnit : UnitLike<OperandsUnit>,
+            Operand : Equatable<OperandsUnit, N>,
+            Result : AmountOperation<OperandsUnit, OperandsUnit, OperandsUnit, N>,
+            N : Number<N>> equatableOperationYieldingSameUnit(o1: Operand,
+                                                              o2: Operand,
+                                                              operation: (() -> N, () -> N, () -> OperandsUnit) -> Result): Result {
+        return operation({ o1.quantity() }, { o2.quantity() }, { o1.unit() })
     }
 
     /**
@@ -283,184 +318,9 @@ object Arithmetic{
             Operand2 : UnitOnlyEquatable<OperandsUnit>,
             Result : UnitlessAmountOperation<OperandsUnit, OperandsUnit, N>,
             reified N : Number<N>> equatableOperation(o1: Operand1,
-                                              o2: Operand2,
-                                              operation: (() -> N, () -> N, () -> OperandsUnit) -> Result): Result {
+                                                      o2: Operand2,
+                                                      operation: (() -> N, () -> N, () -> OperandsUnit) -> Result): Result {
 
         return operation({ -> o1.quantity() }, { -> o2.unaryAmount(N::class).quantity() }, { -> o1.unit() })
     }
-
-
-    inline fun <O1Unit : Unit<O1Unit>,
-            O2Unit : Unit<O2Unit>,
-            N : Number<N>> multiplication(crossinline o1: () -> N,
-                                          crossinline o2: () -> N,
-                                          crossinline o1Unit: () -> O1Unit,
-                                          crossinline o2Unit: () -> O2Unit): UnitfulAmount<Times<O1Unit, O2Unit>, N> {
-        return operation(o1, o2, o1Unit, o2Unit, { n1: N, n2: N -> n1 * n2 }, { u1: O1Unit, u2: O2Unit -> u1 * u2 })
-    }
-
-    inline fun <O1Numerator : Unit<O1Numerator>,
-            O1Denominator : Unit<O1Denominator>,
-            O2Numerator : Unit<O2Numerator>,
-            O2Denominator : Unit<O2Denominator>,
-            N : Number<N>> ratioMultiplication(crossinline o1: () -> N,
-                                               crossinline o2: () -> N,
-                                               crossinline o1Unit: () -> Div<O1Numerator, O1Denominator>,
-                                               crossinline o2Unit: () -> Div<O2Numerator, O2Denominator>): UnitfulAmount<Div<Times<O1Numerator, O2Numerator>, Times<O1Denominator, O2Denominator>>, N> {
-        return operation(o1, o2, o1Unit, o2Unit, { n1: N, n2: N -> n1 * n2 }, { u1: Div<O1Numerator, O1Denominator>, u2: Div<O2Numerator, O2Denominator> -> u1 * u2 })
-    }
-
-    inline fun <UnitToCancel : Unit<UnitToCancel>,
-            O1Denominator : Unit<O1Denominator>,
-            O2Numerator : Unit<O2Numerator>,
-            N : Number<N>> ratioMultiplicationWithInclineCancelation(crossinline o1: () -> N,
-                                                                     crossinline o2: () -> N,
-                                                                     crossinline o1Unit: () -> Div<UnitToCancel, O1Denominator>,
-                                                                     crossinline o2Unit: () -> Div<O2Numerator, UnitToCancel>): UnitfulAmount<Div<O2Numerator, O1Denominator>, N> {
-        return operation(o1, o2, o1Unit, o2Unit, { n1: N, n2: N -> n1 * n2 }, { u1: Div<UnitToCancel, O1Denominator>, u2: Div<O2Numerator, UnitToCancel> -> u1 Xdec u2 })
-    }
-
-    inline fun <UnitToCancel : Unit<UnitToCancel>,
-            O1Numerator : Unit<O1Numerator>,
-            O2Denominator : Unit<O2Denominator>,
-            N : Number<N>> ratioMultiplicationWithDeclineCancelation(crossinline o1: () -> N,
-                                                                     crossinline o2: () -> N,
-                                                                     crossinline o1Unit: () -> Div<O1Numerator, UnitToCancel>,
-                                                                     crossinline o2Unit: () -> Div<UnitToCancel, O2Denominator>): UnitfulAmount<Div<O1Numerator, O2Denominator>, N> {
-        return operation(o1, o2, o1Unit, o2Unit, { n1: N, n2: N -> n1 * n2 }, { u1: Div<O1Numerator, UnitToCancel>, u2: Div<UnitToCancel, O2Denominator> -> u1 Xinc u2 })
-    }
-
-
-    inline fun <UnitToCancel1 : Unit<UnitToCancel1>,
-            UnitToCancel2 : Unit<UnitToCancel2>,
-            N : Number<N>> ratioMultiplicationWithFullCancellation(
-            crossinline o1: () -> N,
-            crossinline o2: () -> N,
-            crossinline o1Unit: () -> Div<UnitToCancel1, UnitToCancel2>,
-            crossinline o2Unit: () -> Div<UnitToCancel2, UnitToCancel1>): UnitlessAmount<N> {
-        return noUnitYieldingOperation(o1, o2, o1Unit, o2Unit, { n1: N, n2: N -> n1 * n2 }, { u1: Div<UnitToCancel1, UnitToCancel2>, u2: Div<UnitToCancel2, UnitToCancel1> -> u1 * u2 })
-    }
-
-    inline fun <O1Unit : Unit<O1Unit>,
-            N : Number<N>> noUnitSecondOperandMultiplication(crossinline o1: () -> N,
-                                                             crossinline o2: () -> N,
-                                                             crossinline o1Unit: () -> O1Unit): UnitfulAmount<O1Unit, N> {
-        return operation(o1, o2, o1Unit, { -> NoUnit }, { n1: N, n2: N -> n1 * n2 }, { u1: O1Unit, u2: NoUnit -> u1 * u2 })
-    }
-
-
-    inline fun <O2Unit : Unit<O2Unit>,
-            N : Number<N>> noUnitFirstOperandMultiplication(crossinline o1: () -> N,
-                                                            crossinline o2: () -> N,
-                                                            crossinline o2Unit: () -> O2Unit): UnitfulAmount<O2Unit, N> {
-        return operation(o1, o2, { -> NoUnit }, o2Unit, { n1: N, n2: N -> n1 * n2 }, { u1: NoUnit, u2: O2Unit -> u1 * u2 })
-    }
-
-    inline fun <N : Number<N>> noUnitYeildingMultiplication(crossinline o1: () -> N,
-                                                            crossinline o2: () -> N): UnitlessAmount<N> {
-        return noUnitYieldingOperation(o1, o2, { -> NoUnit }, { -> NoUnit }, { n1: N, n2: N -> n1 * n2 }, { u1: NoUnit, u2: NoUnit -> u1 * u2 })
-    }
-
-    inline fun <U : Unit<U>, N : Number<N>> addition(crossinline o1: () -> N,
-                                                     crossinline o2: () -> N,
-                                                     crossinline o1Unit: () -> U,
-                                                     crossinline o2Unit: () -> U): UnitfulAmount<U, N> {
-        return operation(o1, o2, o1Unit, o2Unit, { n1: N, n2: N -> n1 + n2 }, { u1: U, u2: U -> u1 + u2 })
-    }
-
-    inline fun <N : Number<N>> noUnitYeildingAddition(crossinline o1: () -> N,
-                                                      crossinline o2: () -> N): UnitlessAmount<N> {
-        return noUnitYieldingOperation(o1, o2, { -> NoUnit }, { -> NoUnit }, { n1: N, n2: N -> n1 + n2 }, { u1: NoUnit, u2: NoUnit -> u1 + u2 })
-    }
-
-
-    inline fun <U : Unit<U>, N : Number<N>> subtraction(crossinline o1: () -> N,
-                                                        crossinline o2: () -> N,
-                                                        crossinline o1Unit: () -> U,
-                                                        crossinline o2Unit: () -> U): UnitfulAmount<U, N> {
-        return operation(o1, o2, o1Unit, o2Unit, { n1: N, n2: N -> n1 + n2 }, { u1: U, u2: U -> u1 + u2 })
-    }
-
-    inline fun <N : Number<N>> noUnitYeildingSubtaction(crossinline o1: () -> N,
-                                                        crossinline o2: () -> N): UnitlessAmount<N> {
-        return noUnitYieldingOperation(o1, o2, { -> NoUnit }, { -> NoUnit }, { n1: N, n2: N -> n1 - n2 }, { u1: NoUnit, u2: NoUnit -> u1 - u2 })
-    }
-
-    /**
-     *  Represents an operation that takes two operands and yields no unit
-     */
-    /*
-    inline fun <Operand1Unit : UnitLike<Operand1Unit>,
-            Operand2Unit : UnitLike<Operand2Unit>,
-            N : Number<N>> noUnitYieldingOperation(crossinline operand1: () -> N,
-                                                   crossinline operand2: () -> N,
-                                                   crossinline operand1Unit: () -> Operand1Unit,
-                                                   crossinline operand2Unit: () -> Operand2Unit,
-                                                   crossinline numberOperation: (N, N) -> N,
-                                                   crossinline unitOperation: (Operand1Unit, Operand2Unit) -> NoUnit): UnitlessAmount<N> {
-        return operation(operand1, operand2, operand1Unit, operand2Unit, numberOperation, unitOperation, { n, u -> UnitlessAmount(n, u) })
-    }
-    inline fun <O1Unit : UnitLike<O1Unit>,
-        O2Unit : UnitLike<O2Unit>,
-        ResultUnit : Unit<ResultUnit>,
-        N : Number<N>> unitYieldingOperation(crossinline o1: () -> N,
-                                             crossinline o2: () -> N,
-                                             crossinline o1Unit: () -> O1Unit,
-                                             crossinline o2Unit: () -> O2Unit,
-                                             crossinline numberOperation: (N, N) -> N,
-                                             crossinline unitOperation: (O1Unit, O2Unit) -> ResultUnit): UnitfulAmount<ResultUnit, N> {
-    return operation(o1, o2, o1Unit, o2Unit, numberOperation, unitOperation, { u, n -> UnitfulAmount(u, n) })
 }
-    */
-}
-
-
-
-
-/*
-
-inline fun <Operand1Unit : UnitLike<Operand1Unit>,
-        Operand2Unit : UnitLike<Operand2Unit>,
-        ResultUnit : UnitLike<ResultUnit>,
-        Operand1 : Equatable<Operand1Unit, N>,
-        Operand2 : Equatable<Operand2Unit, N>,
-        Result : Equatable<ResultUnit, N>,
-        N : Number<N>> equatableOperation(o1: Operand1,
-                                          o2: Operand2,
-                                          crossinline numberOperation: (N, N) -> N,
-                                          crossinline unitOperation: (Operand1Unit, Operand2Unit) -> ResultUnit,
-                                          crossinline equatableCreator: (() -> N, () -> ResultUnit) -> Result): Result {
-    return operation({ -> o1.quantity() }, { -> o2.quantity() }, { -> o1.unit() }, { -> o2.unit() }, numberOperation, unitOperation, equatableCreator)
-}
-
-inline fun <Operand1Unit : UnitLike<Operand1Unit>,
-        Operand2Unit : UnitLike<Operand2Unit>,
-        ResultUnit : UnitLike<ResultUnit>,
-        Operand1 : Equatable<Operand1Unit, N>,
-        Operand2 : Equatable<Operand2Unit, N>,
-        Result : Amount<ResultUnit, N>,
-        N : Number<N>> equatableOperation(o1: Operand1,
-                                          o2: Operand2,
-                                          crossinline numberOperation: (N, N) -> N,
-                                          crossinline unitOperation: (Operand1Unit, Operand2Unit) -> ResultUnit,
-                                          crossinline equatableCreator: (() -> N, () -> ResultUnit) -> Result): Result {
-    return operation({ -> o1.quantity() }, { -> o2.quantity() }, { -> o1.unit() }, { -> o2.unit() }, numberOperation, unitOperation, equatableCreator)
-}
-
-inline fun <Operand1Unit : UnitLike<Operand1Unit>,
-        Operand2Unit : UnitLike<Operand2Unit>,
-        ResultUnit : UnitLike<ResultUnit>,
-        Operand1 : Equatable<Operand1Unit, N>,
-        Operand2 : Equatable<Operand2Unit, N>,
-        Result : AmountOperation<Operand1Unit, Operand2Unit, ResultUnit, N>,
-        N : Number<N>> equatableOperation(o1: Operand1,
-                                          o2: Operand2,
-                                          crossinline numberOperation: (N, N) -> N,
-                                          crossinline unitOperation: (Operand1Unit, Operand2Unit) -> ResultUnit,
-                                          crossinline equatableCreator: (() -> N, () -> N, () -> Operand1Unit, () -> Operand2Unit, () -> N, () -> ResultUnit) -> Result): Result {
-    return operation({ -> o1.quantity() }, { -> o2.quantity() }, { -> o1.unit() }, { -> o2.unit() }, numberOperation, unitOperation, equatableCreator)
-}
-*/
-
-
-

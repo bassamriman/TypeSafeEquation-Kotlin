@@ -1,14 +1,11 @@
-import api.*
 import api.Unit
-import memoization.memoize
-import java.math.BigDecimal
-import kotlin.system.measureTimeMillis
 
 
 object Second : Unit<Second>
 object Newton : Unit<Newton>
 object Km : Unit<Km>
-fun main(args : Array<String>){
+
+fun main(args: Array<String>) {
     //val calculation1 = ((2.0.d * Km) / (2.0.denominator * Second)) Xdec ((2.0.denominator * Newton) / (2.0.denominator * Km))
     //val calculation2 = ((2.0.d * Second) / (2.0.denominator * Km)) Xinc ((2.0.denominator * Km) / (2.0.denominator * Newton))
     //val calculation3 = calculation1 * calculation2
@@ -37,10 +34,11 @@ fun main(args : Array<String>){
     println(measureTimeMillis({->chocolate3.invoke(300.bd, 400.bd)}))
     println(measureTimeMillis({->chocolate3.invoke(300.bd, 400.bd)}))
 */
+    /*
     val multResult = measureTimeMillis({->multiplication({->2.0.d},{->2.0.d},{->Second}, {->Newton}).quantity()})
     println(multResult)
     val multResult3 = measureTimeMillis({->multiplication({->2.0.d},{->2.0.d},{->Second}, {->Newton}).quantity()})
     println(multResult3)
-
+*/
 
 }

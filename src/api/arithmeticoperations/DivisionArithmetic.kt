@@ -1,16 +1,20 @@
-package api
+package api.arithmeticoperations
+
+import api.*
+import api.Number
+import api.Unit
 
 open class Division<NumeratorUnit : UnitLike<NumeratorUnit>,
         DenominatorUnit : UnitLike<DenominatorUnit>,
-        ResultUnit : UnitLike<ResultUnit>,
         N : Number<N>>(
         override val quantity: () -> N,
-        override val unit: () -> ResultUnit,
+        override val unit: () -> Div<NumeratorUnit, DenominatorUnit>,
         val numerator: () -> N,
         val denominator: () -> N,
         val numeratorUnit: () -> NumeratorUnit,
         val denominatorUnit: () -> DenominatorUnit) :
-        AmountOperation<NumeratorUnit, DenominatorUnit, ResultUnit, N>(quantity, unit, numerator, denominator, numeratorUnit, denominatorUnit)
+        Ratio<NumeratorUnit, DenominatorUnit, N>,
+        AmountOperation<NumeratorUnit, DenominatorUnit, Div<NumeratorUnit, DenominatorUnit>, N>(quantity, unit, numerator, denominator, numeratorUnit, denominatorUnit)
 
 open class UnitlessDivision<NumeratorUnit : UnitLike<NumeratorUnit>,
         DenominatorUnit : UnitLike<DenominatorUnit>,
@@ -23,7 +27,7 @@ open class UnitlessDivision<NumeratorUnit : UnitLike<NumeratorUnit>,
         val dUnit: () -> DenominatorUnit) :
         UnitlessAmountOperation<NumeratorUnit, DenominatorUnit, N>(quantity, unit, n, d, nUnit, dUnit)
 
-object RawDivisionArithmetic{
+object RawDivisionArithmetic {
     /**
      *  Raw operation
      */
@@ -32,7 +36,7 @@ object RawDivisionArithmetic{
             N : Number<N>> division(crossinline o1: () -> N,
                                     crossinline o2: () -> N,
                                     crossinline o1Unit: () -> NumeratorUnit,
-                                    crossinline o2Unit: () -> DenominatorUnit): Division<NumeratorUnit, DenominatorUnit, Div<NumeratorUnit, DenominatorUnit>, N> {
+                                    crossinline o2Unit: () -> DenominatorUnit): Division<NumeratorUnit, DenominatorUnit, N> {
         return Arithmetic.operation(o1, o2, o1Unit, o2Unit,
                 { n1: N, n2: N -> n1 / n2 },
                 { u1: NumeratorUnit, u2: DenominatorUnit -> u1 / u2 },
@@ -47,7 +51,7 @@ object RawDivisionArithmetic{
         return Arithmetic.operation(o1, o2, o1Unit, o2Unit,
                 { n1: N, n2: N -> n1 / n2 },
                 { u1: NumeratorUnit, u2: NoUnit -> u1 / u2 },
-                { o1n: () -> N, o2n: () -> N, o1u: () -> NumeratorUnit, o2u: () -> NoUnit, resultn, resultu -> Division(resultn, resultu, o1n, o2n, o1u, o2u) })
+                { o1n: () -> N, o2n: () -> N, o1u: () -> NumeratorUnit, o2u: () -> NoUnit, resultn, resultu -> AmountOperation(resultn, resultu, o1n, o2n, o1u, o2u) })
     }
 
     inline fun <OperandUnit : UnitLike<OperandUnit>,
@@ -73,7 +77,7 @@ object BaseEquatableDivision {
             Operand1 : Equatable<Operand1Unit, N>,
             Operand2 : Equatable<Operand2Unit, N>,
             N : Number<N>> divisionOperation(operand1: Operand1,
-                                             operand2: Operand2): Division<Operand1Unit, Operand2Unit, Div<Operand1Unit, Operand2Unit>, N> {
+                                             operand2: Operand2): Division<Operand1Unit, Operand2Unit, N> {
         return Arithmetic.equatableOperation(
                 operand1,
                 operand2,
@@ -119,7 +123,23 @@ object BaseEquatableDivision {
             Operand1 : Equatable<Operand1Unit, N>,
             Operand2 : UnitOnlyEquatable<Operand2Unit>,
             reified N : Number<N>> divisionOperation(operand1: Operand1,
-                                                     operand2: Operand2): Division<Operand1Unit, Operand2Unit, Div<Operand1Unit, Operand2Unit>, N> {
+                                                     operand2: Operand2): Division<Operand1Unit, Operand2Unit, N> {
+        return Arithmetic.equatableOperation(
+                operand1,
+                operand2,
+                { o1: () -> N, o2: () -> N, o1Unit: () -> Operand1Unit, o2Unit: () -> Operand2Unit -> RawDivisionArithmetic.division(o1, o2, o1Unit, o2Unit) }
+        )
+    }
+
+    /**
+     *  Equatable Operation: Represents a division that takes two operands and yields a division
+     */
+    inline fun <Operand1Unit : Unit<Operand1Unit>,
+            Operand2Unit : Unit<Operand2Unit>,
+            Operand1 : UnitOnlyEquatable<Operand1Unit>,
+            Operand2 : EquatableWithUnit<Operand2Unit, N>,
+            reified N : Number<N>> divisionOperation(operand1: Operand1,
+                                                     operand2: Operand2): Division<Operand1Unit, Operand2Unit, N> {
         return Arithmetic.equatableOperation(
                 operand1,
                 operand2,
@@ -174,7 +194,7 @@ object EquatableDivision {
             Operand1 : Equatable<Operand1Unit, N>,
             Operand2 : EquatableWithUnit<Operand2Unit, N>,
             N : Number<N>> unitDivisionByUnitOperation(o1: Operand1,
-                                                       o2: Operand2): Division<Operand1Unit, Operand2Unit, Div<Operand1Unit, Operand2Unit>, N> {
+                                                       o2: Operand2): Division<Operand1Unit, Operand2Unit, N> {
         return BaseEquatableDivision.divisionOperation(o1, o2)
     }
 
@@ -192,7 +212,7 @@ object EquatableDivision {
             Operand1 : Equatable<Operand1Unit, N>,
             Operand2 : UnitOnlyEquatable<Operand2Unit>,
             reified N : Number<N>> unitDivisionByUnitOperation(o1: Operand1,
-                                                               o2: Operand2): Division<Operand1Unit, Operand2Unit, Div<Operand1Unit, Operand2Unit>, N> {
+                                                               o2: Operand2): Division<Operand1Unit, Operand2Unit, N> {
         return BaseEquatableDivision.divisionOperation(o1, o2)
     }
 
@@ -268,6 +288,24 @@ object EquatableDivision {
     /**
      *  Equatable Operation
      *
+     *  unit/NoUnit= unit
+     *
+     *  @param o1 numerator with unit
+     *  @param o2 denominator with NoUnit unit
+     *  @return division with numerator as unit
+     */
+    inline fun <Operand1Unit : Unit<Operand1Unit>,
+            Operand2Unit : Unit<Operand2Unit>,
+            Operand1 : UnitOnlyEquatable<Operand1Unit>,
+            Operand2 : EquatableWithUnit<Operand2Unit, N>,
+            reified N : Number<N>> unitDivisionByUnitOperation(o1: Operand1,
+                                                               o2: Operand2): Division<Operand1Unit, Operand2Unit, N> {
+        return BaseEquatableDivision.divisionOperation(o1, o2)
+    }
+
+    /**
+     *  Equatable Operation
+     *
      *  NoUnit/unit = NoUnit/unit
      *
      *  @param o1 numerator with NO unit
@@ -278,7 +316,7 @@ object EquatableDivision {
             Operand1 : EquatableWithNoUnit<N>,
             Operand2 : EquatableWithUnit<Operand2Unit, N>,
             N : Number<N>> noUnitDivisionByUnitOperation(o1: Operand1,
-                                                         o2: Operand2): Division<NoUnit, Operand2Unit, Div<NoUnit, Operand2Unit>, N> {
+                                                         o2: Operand2): Division<NoUnit, Operand2Unit, N> {
         return BaseEquatableDivision.divisionOperation(o1, o2)
     }
 
