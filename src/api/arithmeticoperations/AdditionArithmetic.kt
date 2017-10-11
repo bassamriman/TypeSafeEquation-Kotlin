@@ -3,6 +3,9 @@ package api.arithmeticoperations
 import api.*
 import api.Number
 import api.Unit
+import api.equatables.EquatableWithNoUnit
+import api.equatables.EquatableWithUnit
+import api.equatables.UnitOnlyEquatable
 
 open class Addition<Operand1Unit : UnitLike<Operand1Unit>,
         Operand2Unit : UnitLike<Operand2Unit>,
@@ -13,7 +16,7 @@ open class Addition<Operand1Unit : UnitLike<Operand1Unit>,
         val denominator: () -> N,
         val numeratorUnit: () -> Operand1Unit,
         val denominatorUnit: () -> Operand2Unit) :
-        AmountOperation<Operand1Unit, Operand2Unit, Plus<Operand1Unit, Operand2Unit>, N>(quantity, unit, numerator, denominator, numeratorUnit, denominatorUnit)
+        UnitfulAmountOperation<Operand1Unit, Operand2Unit, Plus<Operand1Unit, Operand2Unit>, N>(quantity, unit, numerator, denominator, numeratorUnit, denominatorUnit)
 
 object RawAdditionArithmetic {
     /**
@@ -31,10 +34,10 @@ object RawAdditionArithmetic {
                 { o1n: () -> N, o2n: () -> N, o1u: () -> Operand1Unit, o2u: () -> Operand2Unit, resultn, resultu -> Addition(resultn, resultu, o1n, o2n, o1u, o2u) })
     }
 
-    inline fun <OperandUnit : UnitLike<OperandUnit>,
+    inline fun <OperandUnit : Unit<OperandUnit>,
             N : Number<N>> addition(crossinline o1: () -> N,
                                     crossinline o2: () -> N,
-                                    crossinline operandUnit: () -> OperandUnit): AmountOperation<OperandUnit, OperandUnit, OperandUnit, N> {
+                                    crossinline operandUnit: () -> OperandUnit): UnitfulAmountOperation<OperandUnit, OperandUnit, OperandUnit, N> {
         return Arithmetic.operation(
                 o1,
                 o2,
@@ -42,7 +45,7 @@ object RawAdditionArithmetic {
                 operandUnit,
                 { n1: N, n2: N -> n1 + n2 },
                 { u1: OperandUnit, u2: OperandUnit -> u1 + u2 },
-                { o1n: () -> N, o2n: () -> N, o1u: () -> OperandUnit, o2u: () -> OperandUnit, resultn, resultu -> AmountOperation(resultn, resultu, o1n, o2n, o1u, o2u) })
+                { o1n: () -> N, o2n: () -> N, o1u: () -> OperandUnit, o2u: () -> OperandUnit, resultn, resultu -> UnitfulAmountOperation(resultn, resultu, o1n, o2n, o1u, o2u) })
     }
 
     inline fun <
@@ -94,11 +97,11 @@ object EquatableAddition {
     /**
      *  Equatable Operation: Represents a division that takes two operands and yields a division
      */
-    fun <OperandUnit : UnitLike<OperandUnit>,
+    fun <OperandUnit : Unit<OperandUnit>,
             Operand1 : EquatableWithUnit<OperandUnit, N>,
             Operand2 : EquatableWithUnit<OperandUnit, N>,
             N : Number<N>> additionOperation(operand1: Operand1,
-                                             operand2: Operand2): AmountOperation<OperandUnit, OperandUnit, OperandUnit, N> {
+                                             operand2: Operand2): UnitfulAmountOperation<OperandUnit, OperandUnit, OperandUnit, N> {
         return Arithmetic.equatableOperationYieldingSameUnit(
                 operand1,
                 operand2,
@@ -113,7 +116,7 @@ object EquatableAddition {
             Operand1 : UnitOnlyEquatable<OperandUnit>,
             Operand2 : EquatableWithUnit<OperandUnit, N>,
             reified N : Number<N>> additionOperation(operand1: Operand1,
-                                                     operand2: Operand2): AmountOperation<OperandUnit, OperandUnit, OperandUnit, N> {
+                                                     operand2: Operand2): UnitfulAmountOperation<OperandUnit, OperandUnit, OperandUnit, N> {
         return Arithmetic.equatableOperation(
                 operand1,
                 operand2,

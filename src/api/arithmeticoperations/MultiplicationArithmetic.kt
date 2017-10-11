@@ -3,6 +3,8 @@ package api.arithmeticoperations
 import api.*
 import api.Number
 import api.Unit
+import api.equatables.*
+import api.models.equatables.*
 
 open class Multiplication<Operand1Unit : UnitLike<Operand1Unit>,
         Operand2Unit : UnitLike<Operand2Unit>,
@@ -13,7 +15,7 @@ open class Multiplication<Operand1Unit : UnitLike<Operand1Unit>,
         override val operand2: () -> N,
         override val operand1Unit: () -> Operand1Unit,
         override val operand2Unit: () -> Operand2Unit) :
-        AmountOperation<Operand1Unit, Operand2Unit, Times<Operand1Unit, Operand2Unit>, N>(quantity, unit, operand1, operand2, operand1Unit, operand2Unit)
+        UnitfulAmountOperation<Operand1Unit, Operand2Unit, Times<Operand1Unit, Operand2Unit>, N>(quantity, unit, operand1, operand2, operand1Unit, operand2Unit)
 
 open class DivisionFromMultiplicationDeclineCancellation<
         UnitToCancel : UnitLike<UnitToCancel>,
@@ -27,7 +29,7 @@ open class DivisionFromMultiplicationDeclineCancellation<
         override val operand1Unit: () -> Div<UnitToCancel, DenominatorUnit>,
         override val operand2Unit: () -> Div<NumeratorUnit, UnitToCancel>) :
         Ratio<NumeratorUnit, DenominatorUnit, N>,
-        AmountOperation<Div<UnitToCancel, DenominatorUnit>,
+        UnitfulAmountOperation<Div<UnitToCancel, DenominatorUnit>,
                 Div<NumeratorUnit, UnitToCancel>,
                 Div<NumeratorUnit, DenominatorUnit>,
                 N>(quantity, unit, operand1, operand2, operand1Unit, operand2Unit)
@@ -44,7 +46,7 @@ open class DivisionFromRatioMultiplication<
         override val operand2: () -> N,
         override val operand1Unit: () -> Div<Numerator1Unit, Denominator1Unit>,
         override val operand2Unit: () -> Div<Numerator2Unit, Denominator2Unit>) :
-        AmountOperation<Div<Numerator1Unit, Denominator1Unit>,
+        UnitfulAmountOperation<Div<Numerator1Unit, Denominator1Unit>,
                 Div<Numerator2Unit, Denominator2Unit>,
                 Div<Times<Numerator1Unit, Numerator2Unit>, Times<Denominator1Unit, Denominator2Unit>>,
                 N>(quantity, unit, operand1, operand2, operand1Unit, operand2Unit)
@@ -61,7 +63,7 @@ open class DivisionFromMultiplicationInclineCancellation<
         override val operand1Unit: () -> Div<NumeratorUnit, UnitToCancel>,
         override val operand2Unit: () -> Div<UnitToCancel, DenominatorUnit>) :
         Ratio<NumeratorUnit, DenominatorUnit, N>,
-        AmountOperation<Div<NumeratorUnit, UnitToCancel>,
+        UnitfulAmountOperation<Div<NumeratorUnit, UnitToCancel>,
                 Div<UnitToCancel, DenominatorUnit>,
                 Div<NumeratorUnit, DenominatorUnit>, N>(quantity, unit, operand1, operand2, operand1Unit, operand2Unit)
 
@@ -105,22 +107,22 @@ object RawMultiplicationArithmetic {
             N : Number<N>> multiplication(crossinline o1: () -> N,
                                           crossinline o2: () -> N,
                                           crossinline o1Unit: () -> O1Unit,
-                                          crossinline o2Unit: () -> NoUnit): AmountOperation<O1Unit, NoUnit, O1Unit, N> {
+                                          crossinline o2Unit: () -> NoUnit): UnitfulAmountOperation<O1Unit, NoUnit, O1Unit, N> {
         return Arithmetic.operation(o1, o2, o1Unit, o2Unit,
                 { n1: N, n2: N -> n1 * n2 },
                 { u1: O1Unit, u2: NoUnit -> u1 * u2 },
-                { o1n: () -> N, o2n: () -> N, o1u: () -> O1Unit, o2u: () -> NoUnit, resultn, resultu -> AmountOperation(resultn, resultu, o1n, o2n, o1u, o2u) })
+                { o1n: () -> N, o2n: () -> N, o1u: () -> O1Unit, o2u: () -> NoUnit, resultn, resultu -> UnitfulAmountOperation(resultn, resultu, o1n, o2n, o1u, o2u) })
     }
 
     inline fun <O2Unit : Unit<O2Unit>,
             N : Number<N>> noUnitO1multiplication(crossinline o1: () -> N,
                                                   crossinline o2: () -> N,
                                                   crossinline o1Unit: () -> NoUnit,
-                                                  crossinline o2Unit: () -> O2Unit): AmountOperation<NoUnit, O2Unit, O2Unit, N> {
+                                                  crossinline o2Unit: () -> O2Unit): UnitfulAmountOperation<NoUnit, O2Unit, O2Unit, N> {
         return Arithmetic.operation(o1, o2, o1Unit, o2Unit,
                 { n1: N, n2: N -> n1 * n2 },
                 { u1: NoUnit, u2: O2Unit -> u1 * u2 },
-                { o1n: () -> N, o2n: () -> N, o1u: () -> NoUnit, o2u: () -> O2Unit, resultn, resultu -> AmountOperation(resultn, resultu, o1n, o2n, o1u, o2u) })
+                { o1n: () -> N, o2n: () -> N, o1u: () -> NoUnit, o2u: () -> O2Unit, resultn, resultu -> UnitfulAmountOperation(resultn, resultu, o1n, o2n, o1u, o2u) })
     }
 
     inline fun <N : Number<N>> multiplication(crossinline o1: () -> N,
@@ -232,7 +234,7 @@ object EquatableMultiplication {
             Operand1 : EquatableWithUnit<OperandUnit, N>,
             Operand2 : EquatableWithNoUnit<N>,
             N : Number<N>> multiplicationOperation(operand1: Operand1,
-                                                   operand2: Operand2): AmountOperation<OperandUnit, NoUnit, OperandUnit, N> {
+                                                   operand2: Operand2): UnitfulAmountOperation<OperandUnit, NoUnit, OperandUnit, N> {
         return Arithmetic.equatableOperation(
                 operand1,
                 operand2,
@@ -247,7 +249,7 @@ object EquatableMultiplication {
             Operand1 : EquatableWithNoUnit<N>,
             Operand2 : EquatableWithUnit<OperandUnit, N>,
             N : Number<N>> multiplicationOperation(operand1: Operand1,
-                                                   operand2: Operand2): AmountOperation<NoUnit, OperandUnit, OperandUnit, N> {
+                                                   operand2: Operand2): UnitfulAmountOperation<NoUnit, OperandUnit, OperandUnit, N> {
         return Arithmetic.equatableOperation(
                 operand1,
                 operand2,
@@ -272,7 +274,7 @@ object EquatableMultiplication {
             Operand1 : EquatableWithNoUnit<N>,
             Operand2 : UnitOnlyEquatable<Operand2Unit>,
             reified N : Number<N>> multiplicationOperation(operand1: Operand1,
-                                                           operand2: Operand2): AmountOperation<NoUnit, Operand2Unit, Operand2Unit, N> {
+                                                           operand2: Operand2): UnitfulAmountOperation<NoUnit, Operand2Unit, Operand2Unit, N> {
         return Arithmetic.equatableOperation(
                 operand1,
                 operand2,
@@ -307,7 +309,7 @@ object EquatableMultiplication {
             Operand1 : UnitOnlyEquatable<Operand1Unit>,
             Operand2 : EquatableWithNoUnit<N>,
             reified N : Number<N>> multiplicationOperation(operand1: Operand1,
-                                                           operand2: Operand2): AmountOperation<Operand1Unit, NoUnit, Operand1Unit, N> {
+                                                           operand2: Operand2): UnitfulAmountOperation<Operand1Unit, NoUnit, Operand1Unit, N> {
         return Arithmetic.equatableOperation(
                 operand1,
                 operand2,

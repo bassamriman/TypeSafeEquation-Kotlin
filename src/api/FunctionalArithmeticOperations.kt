@@ -1,5 +1,7 @@
 package api
 
+import api.equatables.*
+
 /*
 inline fun numericalOperation(o1 : ()->Number<*>, o2 : ()->Number<*>, numberOperation : (Number<*>, Number<*>)->Number<*>) =
         numberOperation.invoke(o1.invoke(),o2.invoke())
@@ -51,16 +53,16 @@ interface Operation<Operand1Unit : UnitLike<Operand1Unit>,
     val operand2Unit: () -> Operand2Unit
 }
 
-open class AmountOperation<Operand1Unit : UnitLike<Operand1Unit>,
+open class UnitfulAmountOperation<Operand1Unit : UnitLike<Operand1Unit>,
         Operand2Unit : UnitLike<Operand2Unit>,
-        ResultUnit : UnitLike<ResultUnit>,
+        ResultUnit : Unit<ResultUnit>,
         N : Number<N>>(
         override val quantity: () -> N,
         override val unit: () -> ResultUnit,
         override val operand1: () -> N,
         override val operand2: () -> N,
         override val operand1Unit: () -> Operand1Unit,
-        override val operand2Unit: () -> Operand2Unit) : Amount<ResultUnit, N>(quantity, unit), Operation<Operand1Unit, Operand2Unit, N>
+        override val operand2Unit: () -> Operand2Unit) : UnitfulAmount<ResultUnit, N>(quantity, unit), Operation<Operand1Unit, Operand2Unit, N>
 
 open class UnitlessAmountOperation<Operand1Unit : UnitLike<Operand1Unit>,
         Operand2Unit : UnitLike<Operand2Unit>,
@@ -121,7 +123,7 @@ object Arithmetic {
     inline fun <Operand1Unit : UnitLike<Operand1Unit>,
             Operand2Unit : UnitLike<Operand2Unit>,
             ResultUnit : UnitLike<ResultUnit>,
-            ResultAmount : AmountOperation<Operand1Unit, Operand2Unit, ResultUnit, N>,
+            ResultAmount : UnitfulAmountOperation<Operand1Unit, Operand2Unit, ResultUnit, N>,
             N : Number<N>>
             operation(crossinline operand1: () -> N,
                       crossinline operand2: () -> N,
@@ -201,7 +203,7 @@ object Arithmetic {
      *  Represents an operation that takes two operands of the same unit and yields the same unit eg. Addition, Subtraction
      */
     inline fun <OperandUnit : UnitLike<OperandUnit>,
-            ResultAmount : AmountOperation<OperandUnit, OperandUnit, OperandUnit, N>,
+            ResultAmount : UnitfulAmountOperation<OperandUnit, OperandUnit, OperandUnit, N>,
             N : Number<N>> sameUnitYeildingSameUnitOperation(crossinline operand1: () -> N,
                                                              crossinline operand2: () -> N,
                                                              crossinline operand1Unit: () -> OperandUnit,
@@ -223,7 +225,7 @@ object Arithmetic {
             ResultUnit : UnitLike<ResultUnit>,
             Operand1 : Equatable<Operand1Unit, N>,
             Operand2 : Equatable<Operand2Unit, N>,
-            Result : AmountOperation<Operand1Unit, Operand2Unit, ResultUnit, N>,
+            Result : UnitfulAmountOperation<Operand1Unit, Operand2Unit, ResultUnit, N>,
             N : Number<N>> equatableOperation(o1: Operand1,
                                               o2: Operand2,
                                               operation: (() -> N, () -> N, () -> Operand1Unit, () -> Operand2Unit) -> Result): Result {
@@ -238,7 +240,7 @@ object Arithmetic {
             ResultUnit : Unit<ResultUnit>,
             Operand1 : UnitOnlyEquatable<Operand1Unit>,
             Operand2 : EquatableWithUnit<Operand2Unit, N>,
-            Result : AmountOperation<Operand1Unit, Operand2Unit, ResultUnit, N>,
+            Result : UnitfulAmountOperation<Operand1Unit, Operand2Unit, ResultUnit, N>,
             reified N : Number<N>> equatableOperation(o1: Operand1,
                                                       o2: Operand2,
                                                       operation: (() -> N, () -> N, () -> Operand1Unit, () -> Operand2Unit) -> Result): Result {
@@ -251,7 +253,7 @@ object Arithmetic {
     inline fun <OperandUnit : Unit<OperandUnit>,
             Operand1 : UnitOnlyEquatable<OperandUnit>,
             Operand2 : EquatableWithUnit<OperandUnit, N>,
-            Result : AmountOperation<OperandUnit, OperandUnit, OperandUnit, N>,
+            Result : UnitfulAmountOperation<OperandUnit, OperandUnit, OperandUnit, N>,
             reified N : Number<N>> equatableOperation(o1: Operand1,
                                                       o2: Operand2,
                                                       operation: (() -> N, () -> N, () -> OperandUnit) -> Result): Result {
@@ -264,7 +266,7 @@ object Arithmetic {
     inline fun <OperandUnit : Unit<OperandUnit>,
             Operand1 : UnitOnlyEquatable<OperandUnit>,
             Operand2 : EquatableWithNoUnit<N>,
-            Result : AmountOperation<OperandUnit, NoUnit, OperandUnit, N>,
+            Result : UnitfulAmountOperation<OperandUnit, NoUnit, OperandUnit, N>,
             reified N : Number<N>> equatableOperation(o1: Operand1,
                                                       o2: Operand2,
                                                       operation: (() -> N, () -> N, () -> OperandUnit, () -> NoUnit) -> Result): Result {
@@ -279,7 +281,7 @@ object Arithmetic {
             ResultUnit : UnitLike<ResultUnit>,
             Operand1 : Equatable<Operand1Unit, N>,
             Operand2 : UnitOnlyEquatable<Operand2Unit>,
-            Result : AmountOperation<Operand1Unit, Operand2Unit, ResultUnit, N>,
+            Result : UnitfulAmountOperation<Operand1Unit, Operand2Unit, ResultUnit, N>,
             reified N : Number<N>> equatableOperation(o1: Operand1,
                                                       o2: Operand2,
                                                       operation: (() -> N, () -> N, () -> Operand1Unit, () -> Operand2Unit) -> Result): Result {
@@ -303,7 +305,7 @@ object Arithmetic {
      */
     inline fun <OperandsUnit : UnitLike<OperandsUnit>,
             Operand : Equatable<OperandsUnit, N>,
-            Result : AmountOperation<OperandsUnit, OperandsUnit, OperandsUnit, N>,
+            Result : UnitfulAmountOperation<OperandsUnit, OperandsUnit, OperandsUnit, N>,
             N : Number<N>> equatableOperationYieldingSameUnit(o1: Operand,
                                                               o2: Operand,
                                                               operation: (() -> N, () -> N, () -> OperandsUnit) -> Result): Result {
