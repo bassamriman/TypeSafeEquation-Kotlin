@@ -1,7 +1,5 @@
 package api
 
-import api.equatables.*
-
 /*
 inline fun numericalOperation(o1 : ()->Number<*>, o2 : ()->Number<*>, numberOperation : (Number<*>, Number<*>)->Number<*>) =
         numberOperation.invoke(o1.invoke(),o2.invoke())
@@ -73,30 +71,6 @@ open class UnitlessAmountOperation<Operand1Unit : UnitLike<Operand1Unit>,
         override val operand2: () -> N,
         override val operand1Unit: () -> Operand1Unit,
         override val operand2Unit: () -> Operand2Unit) : UnitlessAmount<N>(quantity, unit), Operation<Operand1Unit, Operand2Unit, N>
-
-open class UnitfulAmountYieldingOperation<Operand1Unit : UnitLike<Operand1Unit>,
-        Operand2Unit : UnitLike<Operand2Unit>,
-        ResultUnit : Unit<ResultUnit>,
-        N : Number<N>>(
-        override val quantity: () -> N,
-        override val unit: () -> ResultUnit,
-        override val operand1: () -> N,
-        override val operand2: () -> N,
-        override val operand1Unit: () -> Operand1Unit,
-        override val operand2Unit: () -> Operand2Unit) : UnitfulAmount<ResultUnit, N>(quantity, unit), Operation<Operand1Unit, Operand2Unit, N>
-
-open class UnitlessAmountYeildingOperation<
-        Operand1Unit : UnitLike<Operand1Unit>,
-        Operand2Unit : UnitLike<Operand2Unit>,
-        N : Number<N>>(
-        override val quantity: () -> N,
-        override val unit: () -> NoUnit,
-        override val operand1: () -> N,
-        override val operand2: () -> N,
-        override val operand1Unit: () -> Operand1Unit,
-        override val operand2Unit: () -> Operand2Unit) : UnitlessAmount<N>(quantity, unit), Operation<Operand1Unit, Operand2Unit, N> {
-    override fun unit(): NoUnit = NoUnit
-}
 
 object Arithmetic {
 

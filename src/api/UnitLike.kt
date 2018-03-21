@@ -1,7 +1,5 @@
 package api
 
-import api.equatables.UnitOnlyEquatable
-
 interface UnitLike<Self : UnitLike<Self>> {
     operator fun div(other: Self): NoUnit = NoUnit
     operator fun plus(other: Self): Self = this as Self

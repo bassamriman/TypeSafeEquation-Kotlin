@@ -3,9 +3,9 @@ package api.arithmeticoperations
 import api.*
 import api.Number
 import api.Unit
-import api.equatables.EquatableWithNoUnit
-import api.equatables.EquatableWithUnit
-import api.equatables.UnitOnlyEquatable
+import api.EquatableWithNoUnit
+import api.EquatableWithUnit
+import api.UnitOnlyEquatable
 
 open class Addition<Operand1Unit : UnitLike<Operand1Unit>,
         Operand2Unit : UnitLike<Operand2Unit>,

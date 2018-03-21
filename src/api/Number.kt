@@ -1,6 +1,5 @@
 package api
 
-import api.equatables.EquatableWithNoUnit
 import memoization.memoize
 import java.math.BigDecimal
 import java.math.RoundingMode

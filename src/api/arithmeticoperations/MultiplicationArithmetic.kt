@@ -3,8 +3,6 @@ package api.arithmeticoperations
 import api.*
 import api.Number
 import api.Unit
-import api.equatables.*
-import api.models.equatables.*
 
 open class Multiplication<Operand1Unit : UnitLike<Operand1Unit>,
         Operand2Unit : UnitLike<Operand2Unit>,

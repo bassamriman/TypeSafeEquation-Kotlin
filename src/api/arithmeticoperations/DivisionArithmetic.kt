@@ -3,8 +3,6 @@ package api.arithmeticoperations
 import api.*
 import api.Number
 import api.Unit
-import api.equatables.*
-import api.models.equatables.*
 
 open class Division<NumeratorUnit : UnitLike<NumeratorUnit>,
         DenominatorUnit : UnitLike<DenominatorUnit>,
